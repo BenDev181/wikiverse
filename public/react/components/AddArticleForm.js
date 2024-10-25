@@ -19,18 +19,13 @@ export const AddArticleForm = ({ onCancel, onArticleAdded }) => {
       tags
     };
 
-    try {
-      const response = await fetch(`${apiURL}/wiki`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(articleData)
-      });
-      if (!response.ok) throw new Error('Failed to create article');
-      await response.json();  // Parse the response if needed
-      onArticleAdded();  // Trigger callback to go back to list and refresh articles
-    } catch (err) {
-      console.error('Error adding article:', err);
-    }
+    const response = await fetch(`${apiURL}/wiki`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(articleData)
+    });
+    await response.json();  // Parse the response if needed
+    onArticleAdded();  // Trigger callback to go back to list and refresh articles
   }
 
   return (
