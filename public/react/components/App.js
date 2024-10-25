@@ -1,36 +1,36 @@
-import React, { useEffect, useState } from 'react'
-import { PagesList } from './PagesList'
-import { SinglePage } from './SinglePage'
-
-// import and prepend the api url to any fetch calls
-import apiURL from '../api'
+import React, { useEffect, useState } from 'react';
+import { PagesList } from './PagesList';
+import { SinglePage } from './SinglePage';
+import { AddArticleForm } from './AddArticleForm';
+import apiURL from '../api';
 
 export const App = () => {
-  const [pages, setPages] = useState([])
-  const [selectedPage, setSelectedPage] = useState(null) // New state for single page view
+  const [pages, setPages] = useState([]);
+  const [selectedPage, setSelectedPage] = useState(null);
+  const [isAddingArticle, setIsAddingArticle] = useState(false);
 
-  // Fetch all pages on mount
   useEffect(() => {
-    async function fetchPages() {
-      try {
-        const response = await fetch(`${apiURL}/wiki`)
-        const pagesData = await response.json()
-        setPages(pagesData)
-      } catch (err) {
-        console.log('Oh no, an error!', err)
-      }
-    }
-    fetchPages()
-  }, [])
+    fetchPages();
+  }, []);
 
-  // Fetch a single page when selected
+  async function fetchPages() {
+    try {
+      const response = await fetch(`${apiURL}/wiki`);
+      const pagesData = await response.json();
+      setPages(pagesData);
+    } catch (err) {
+      console.error('Error fetching pages:', err);
+    }
+  }
+
   async function fetchSinglePage(slug) {
     try {
-      const response = await fetch(`${apiURL}/wiki/${slug}`)
-      const pageData = await response.json()
-      setSelectedPage(pageData) // Set the selected page data
+      const response = await fetch(`${apiURL}/wiki/${slug}`);
+      if (!response.ok) throw new Error(`Failed to fetch page with slug: ${slug}`);
+      const pageData = await response.json();
+      setSelectedPage(pageData);
     } catch (err) {
-      console.log('Error fetching single page', err)
+      console.error('Error fetching single page:', err);
     }
   }
 
@@ -38,11 +38,21 @@ export const App = () => {
     <main>
       <h1>WikiVerse</h1>
       <h2>An interesting 📚</h2>
-      {selectedPage ? (
-        <SinglePage page={selectedPage} setSelectedPage={setSelectedPage} />  
-      ) : (
-        <PagesList pages={pages} onPageClick={fetchSinglePage} />  
-      )}
+      
+      {selectedPage 
+      ? (<SinglePage page={selectedPage} setSelectedPage={setSelectedPage} />) 
+      : isAddingArticle 
+        ? (<AddArticleForm 
+          onCancel={() => setIsAddingArticle(false)}
+          onArticleAdded={() => {
+            setIsAddingArticle(false);
+            fetchPages();
+          }}/>) 
+        : (<>
+          <PagesList pages={pages} onPageClick={(slug) => fetchSinglePage(slug)} />
+          <button onClick={() => setIsAddingArticle(true)}>Add New Article</button>
+          </>)
+      }
     </main>
-  )
-}
+  );
+};
