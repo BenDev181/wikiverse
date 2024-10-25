@@ -1,7 +1,10 @@
 import React from 'react'
 
-export const Page = (props) => {
-  return <>
-    <h3>{props.page.title}</h3>
-  </>
+export const Page = ({ page }) => {
+  return (
+    <>
+      <h3>{page.title}</h3>
+      {/* You can optionally add more details here */}
+    </>
+  )
 }
